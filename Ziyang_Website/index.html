@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <!-- Bootstrap 5.1 CSS-->
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+      integrity="sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3"
+      crossorigin="anonymous"
+    />
+
+    <!-- Bootstrap 5.1 JS Bundle -->
+    <script
+      src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"
+      integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p"
+      crossorigin="anonymous"
+    ></script>
+
+    <title>Bootstrap Practice</title>
+  </head>
+
+  <body>
+    <nav class="navbar navbar-expand-lg navbar-light bg-light">
+      <div class="container-fluid">
+        <a class="navbar-brand" href="/"><button class="btn btn-dark">Clothing Home Page</button></a>
+        <button
+          class="navbar-toggler"
+          type="button"
+          data-bs-toggle="collapse"
+          data-bs-target="#navbarSupportedContent"
+          aria-controls="navbarSupportedContent"
+          aria-expanded="false"
+          aria-label="Toggle navigation"
+        >
+          <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse justify-content-end" id="navbarSupportedContent">
+          <form class="d-flex" id="searchForm">
+            <input
+              class="form-control me-2"
+              type="search"
+              placeholder="ID (Number)"
+              id="id"
+              aria-label="Search"
+            />
+            <button class="btn btn-success" type="submit">Search</button>
+          </form>
+        </div>
+      </div>
+    </nav>
+    <div class="container">
+      <div class="row">
+        <div class="col">
+          <table class="table table-hover" id="postsTable">
+            <thead>
+              <tr>
+                <th>ID</th>
+                <th>Title</th>
+                <th>Price</th>
+                <th>Description</th>
+                <th>Image</th>
+                <th>Category</th>
+                <th>Rate</th>
+                <th>Count</th>
+              </tr>
+            </thead>
+            <tbody></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+    <div class="modal fade" tabindex="-1" id="commentsModal">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="itemTitle"></h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <div class="modal-body">
+            <p><strong>Rating: <span id="itemRating"></span></strong> </p>
+            <img id="itemImage" src="" alt="Product Image" style="display: block; margin: 0 auto;max-width: 200px; max-height: 150px;"><br><br>
+            <p><strong>Price: <span id="itemPrice"></strong></span></p>
+            <p><strong>Description: </strong><span id="itemDescription"></span></p>
+            <p><strong>Category: </strong><span id="itemCategory"></span></p>
+            <p><strong>ID: </strong><span id="itemID"></span></p>
+            <p><strong>Count: </strong><span id="itemCount"></span></p>
+
+
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+          </div>
+        </div>
+      </div>
+    </div>
+    <script>
+      function populatePostsTable(id = null) {
+        let url = +id  // attempt to convert id to a number
+          ? `https://fakestoreapi.com/products/${+id}`
+          : `https://fakestoreapi.com/products`;
+
+        fetch(url)
+          .then((res) => res.json())
+          .then((data) => {
+            if (id) {
+              data = Array.isArray(data) ? data.filter(post => post.id == id) : [data];
+            }
+
+            let postRows = `
+              ${data.map(post => (
+                `<tr id="${post.id}">
+                  <td>${post.id}</td>
+                  <td>${post.title}</td>
+                  <td>${post.price}</td>
+                  <td>${post.description}</td>
+                  <td><img src="${post.image}" alt="Product Image" style="max-width: 100px; max-height: 100px;"></td>
+                  <td>${post.category}</td>
+                  <td>${post.rating.rate}</td>
+                  <td>${post.rating.count}</td>
+                </tr>`
+              )).join('')}
+            `;
+            document.querySelector('#postsTable tbody').innerHTML = postRows;
+
+            document.querySelectorAll('#postsTable tbody tr').forEach((row) => {
+              row.addEventListener('click', (e) => {
+                let clickedId = row.getAttribute('id');
+                fetch(`https://fakestoreapi.com/products/${clickedId}`)
+                  .then((res) => res.json())
+                  .then((data) => {
+                    let title = data.title;
+                    let description = data.description;
+                    let rating = data.rating.rate;
+                    let image = data.image;
+                    let price = data.price;
+                    let category = data.category;
+                    let id = data.id;
+                    let count = data.rating.count;
+
+                    document.getElementById('itemTitle').innerHTML = title;
+                    document.getElementById('itemDescription').innerHTML = description;
+                    document.getElementById('itemRating').innerHTML = rating;
+                    document.getElementById('itemImage').src = image;
+                    document.getElementById('itemPrice').innerHTML = rating;
+                    document.getElementById('itemCategory').innerHTML = category;
+                    document.getElementById('itemID').innerHTML = id;
+                    document.getElementById('itemCount').innerHTML = count;
+
+                    // Show the modal
+                    let modal = new bootstrap.Modal(document.getElementById('commentsModal'), {
+                      backdrop: 'static',
+                      keyboard: false,
+                    });
+
+                    modal.show();
+                  });
+              });
+            });
+          });
+      }
+
+      document.addEventListener('DOMContentLoaded', function () {
+        populatePostsTable();
+        document.querySelector('#searchForm').addEventListener('submit', (event) => {
+          event.preventDefault();
+          populatePostsTable(document.querySelector('#id').value);
+        });
+      });
+    </script>
+  </body>
+</html>
