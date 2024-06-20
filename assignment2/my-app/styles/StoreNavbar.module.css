@@ -1,0 +1,20 @@
+.navbar {
+  margin: 20px;
+}
+
+.navbar ul {
+  display: flex; 
+  font-weight: 600; 
+  padding: 12px; 
+  list-style-type: none; 
+}
+
+.navbar ul li {
+  margin-right: 20px; 
+}
+
+
+.code {
+  font-weight: 700;
+  font-family: var(--font-mono);
+}
